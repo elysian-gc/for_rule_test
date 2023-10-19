@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 
-	linters "github.com/golangci/example-linter"
+	linters "github.com/elysian-gc/for_rule_test"
 	"golang.org/x/tools/go/analysis"
 )
 
