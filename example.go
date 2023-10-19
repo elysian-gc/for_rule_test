@@ -2,35 +2,28 @@ package linters
 
 import (
 	"go/ast"
+	"go/token"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
 )
 
 var TodoAnalyzer = &analysis.Analyzer{
-	Name: "todo",
-	Doc:  "finds todos without author",
+	Name: "newrule",
+	Doc:  "check for 'nohup' string",
 	Run:  run,
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(n ast.Node) bool {
-			if comment, ok := n.(*ast.Comment); ok {
-				if strings.HasPrefix(comment.Text, "// TODO:") || strings.HasPrefix(comment.Text, "// TODO():") {
-					pass.Report(analysis.Diagnostic{
-						Pos:            comment.Pos(),
-						End:            0,
-						Category:       "todo",
-						Message:        "TODO comment has no author",
-						SuggestedFixes: nil,
-					})
+			if str, ok := n.(*ast.BasicLit); ok && str.Kind == token.STRING {
+				if strings.Contains(str.Value, "nohup") {
+					pass.Reportf(str.Pos(), "Found 'nohup' string")
 				}
 			}
-
 			return true
 		})
 	}
-
 	return nil, nil
 }
